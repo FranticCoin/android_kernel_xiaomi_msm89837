@@ -1295,6 +1295,7 @@ static int proc_do_submiturb(struct usb_dev_state *ps, struct usbdevfs_urb *uurb
 	int number_of_packets = 0;
 	unsigned int stream_id = 0;
 	void *buf;
+	bool allow_short = false;
 
 	if (uurb->flags & ~(USBDEVFS_URB_ISO_ASAP |
 				USBDEVFS_URB_SHORT_NOT_OK |
