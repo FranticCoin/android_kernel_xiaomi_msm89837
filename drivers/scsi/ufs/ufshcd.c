@@ -8335,6 +8335,9 @@ EXPORT_SYMBOL(ufshcd_system_suspend);
 
 int ufshcd_system_resume(struct ufs_hba *hba)
 {
+	int ret;
+	ktime_t start = ktime_get();
+
 	if (!hba)
 		return -EINVAL;
 
@@ -8997,7 +9000,7 @@ static void ufshcd_clk_scaling_resume_work(struct work_struct *work)
 static int ufshcd_devfreq_target(struct device *dev,
 				unsigned long *freq, u32 flags)
 {
-	int ret = 0;
+	int ret = 0, err=0;
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 	bool release_clk_hold = false;
 	unsigned long irq_flags;
@@ -9037,7 +9040,7 @@ static int ufshcd_devfreq_target(struct device *dev,
 
 	spin_lock_irqsave(hba->host->host_lock, irq_flags);
 	if (release_clk_hold)
-		__ufshcd_release(hba);
+		__ufshcd_release(hba, false);
 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
 
 	return err;
