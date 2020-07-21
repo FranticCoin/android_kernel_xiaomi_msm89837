@@ -330,6 +330,25 @@ static unsigned ks8851_rdreg8(struct ks8851_net *ks, unsigned reg)
 	return rxb[0];
 }
 
+/**
+ * ks8851_rdreg32 - read 32 bit register from device
+ * @ks: The chip information
+ * @reg: The register address
+ *
+ * Read a 32bit register from the chip.
+ *
+ * Note, this read requires the address be aligned to 4 bytes.
+*/
+static unsigned ks8851_rdreg32(struct ks8851_net *ks, unsigned reg)
+{
+	__le32 rx = 0;
+
+	WARN_ON(reg & 3);
+
+	ks8851_rdreg(ks, MK_OP(0xf, reg), (u8 *)&rx, 4);
+	return le32_to_cpu(rx);
+}
+
 static unsigned ks8851_32bitrdreg16(struct ks8851_net *ks, unsigned reg)
 {
 	int ret;
@@ -605,9 +624,11 @@ static void ks8851_rx_pkts3(struct ks8851_net *ks)
 	unsigned rxlen = 0;
 	unsigned totallen = 0;
 	unsigned rxalign = 0;
+	unsigned rxstat;
 	u8 *rxpkt = 0;
 	u8 *buf = NULL, *buf1 = NULL;
 	u32 *buf32 = NULL;
+	u32 rxh;
 	u16 rxlen32 = 0;
 	u16 index32 = 0;
 
